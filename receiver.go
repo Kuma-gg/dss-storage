@@ -71,18 +71,20 @@ func receiverFileMessage() {
 				log.Println("INFO : Created successfully " + documentNormal.Filename)
 
 				documentJSON, err := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Created successfully " + documentNormal.Filename})
-				 go sendFileMessage(documentJSON)
-			}else {
+				go sendFileMessage(documentJSON)
+			} else {
 				if documentNormal.Type == "delete" {
-					err:= os.Remove("./files/" + documentNormal.Filename)
-					if err == nil{
+					err := os.Remove("./files/" + documentNormal.Filename)
+					if err != nil {
 						log.Println("ERROR : Delete file")
 						documentJSON, _ := json.Marshal(ConfirmationQueue{Type: "error", Message: " Error Delete file" + documentNormal.Filename})
 						go sendFileMessage(documentJSON)
-					}
+					} else {
+						log.Println("INFO : Deleted successfully " + documentNormal.Filename)
 
-					documentJSON, err := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Delete successfully " + documentNormal.Filename})
-					go sendFileMessage(documentJSON)
+						documentJSON, _ := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Delete successfully " + documentNormal.Filename})
+						go sendFileMessage(documentJSON)
+					}
 				}
 			}
 
