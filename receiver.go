@@ -19,6 +19,8 @@ type DocumentFile struct {
 type ConfirmationQueue struct {
 	Type    string
 	Message string
+	Event string
+
 }
 
 func receiverFileMessage() {
@@ -70,7 +72,7 @@ func receiverFileMessage() {
 				}
 				log.Println("INFO : Created successfully " + documentNormal.Filename)
 
-				documentJSON, err := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Created successfully " + documentNormal.Filename})
+				documentJSON, err := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Created successfully " + documentNormal.Filename,Event:"created"})
 				go sendFileMessage(documentJSON)
 			} else {
 				if documentNormal.Type == "delete" {
@@ -82,7 +84,7 @@ func receiverFileMessage() {
 					} else {
 						log.Println("INFO : Deleted successfully " + documentNormal.Filename)
 
-						documentJSON, _ := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Delete successfully " + documentNormal.Filename})
+						documentJSON, _ := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Delete successfully " + documentNormal.Filename,Event:"deleted"})
 						go sendFileMessage(documentJSON)
 					}
 				}
