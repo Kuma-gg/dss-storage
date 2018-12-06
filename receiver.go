@@ -6,10 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 )
 
 type DocumentFile struct {
-	ID       string
+	ID       int
 	Filename string
 	Bytes    []byte
 	Size     int64
@@ -19,8 +20,7 @@ type DocumentFile struct {
 type ConfirmationQueue struct {
 	Type    string
 	Message string
-	Event string
-
+	Event   string
 }
 
 func receiverFileMessage() {
@@ -61,9 +61,9 @@ func receiverFileMessage() {
 			if errDecoding != nil {
 				panic(errDecoding)
 			}
-
+			id := strconv.Itoa(documentNormal.ID)
 			if documentNormal.Type == "create" {
-				err := ioutil.WriteFile("./files/"+documentNormal.Filename, documentNormal.Bytes, 777)
+				err := ioutil.WriteFile("./files/"+id+"_"+documentNormal.Filename, documentNormal.Bytes, 777)
 
 				if err != nil {
 					log.Println("ERROR : Save file")
@@ -72,11 +72,12 @@ func receiverFileMessage() {
 				}
 				log.Println("INFO : Created successfully " + documentNormal.Filename)
 
-				documentJSON, err := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Created successfully " + documentNormal.Filename,Event:"created"})
+				documentJSON, err := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Created successfully " + documentNormal.Filename, Event: "created"})
 				go sendFileMessage(documentJSON)
 			} else {
 				if documentNormal.Type == "delete" {
-					err := os.Remove("./files/" + documentNormal.Filename)
+					id := strconv.Itoa(documentNormal.ID)
+					err := os.Remove("./files/" + id + "_" + documentNormal.Filename)
 					if err != nil {
 						log.Println("ERROR : Delete file")
 						documentJSON, _ := json.Marshal(ConfirmationQueue{Type: "error", Message: " Error Delete file" + documentNormal.Filename})
@@ -84,7 +85,7 @@ func receiverFileMessage() {
 					} else {
 						log.Println("INFO : Deleted successfully " + documentNormal.Filename)
 
-						documentJSON, _ := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Delete successfully " + documentNormal.Filename,Event:"deleted"})
+						documentJSON, _ := json.Marshal(ConfirmationQueue{Type: "successfully", Message: " Delete successfully " + documentNormal.Filename, Event: "deleted"})
 						go sendFileMessage(documentJSON)
 					}
 				}
